@@ -50,7 +50,7 @@ export function EquityChart({ data }: { data: { t: number; equity: number }[] })
           }}
           labelStyle={{ color: "#8b95a9" }}
           labelFormatter={(t) => fmtDay(Number(t))}
-          formatter={(v: number) => [usdCompact(v), "Equity"]}
+          formatter={(v) => [usdCompact(Number(v)), "Equity"]}
         />
         <Area
           type="monotone"

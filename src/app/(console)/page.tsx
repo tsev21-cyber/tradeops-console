@@ -1,4 +1,4 @@
-import { TrendingUp, Wallet, Activity, Target } from "lucide-react";
+import { TrendingUp, Wallet, Activity, Target, type LucideIcon } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { EquityChart } from "@/components/EquityChart";
 import { Card, CardHeader, Badge, Delta } from "@/components/ui";
@@ -23,7 +23,13 @@ export default function DashboardPage() {
   const winRate = closed.length ? (wins / closed.length) * 100 : 0;
   const openCount = trades.filter((t) => t.status === "open").length;
 
-  const kpis = [
+  const kpis: {
+    label: string;
+    value: string;
+    icon: LucideIcon;
+    delta?: number;
+    sub?: string;
+  }[] = [
     { label: "Total Equity", value: usd(equityNow), delta: pnl30dPct, icon: Wallet },
     { label: "30D P&L", value: usd(pnl30d), delta: pnl30dPct, icon: TrendingUp },
     { label: "Open Positions", value: String(openCount), sub: "across 3 portfolios", icon: Activity },
