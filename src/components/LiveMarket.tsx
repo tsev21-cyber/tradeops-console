@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
+import { PlusCircle } from "lucide-react";
 import type { Ticker24h } from "@/modules/exchange/binance";
 import { WATCHLIST_PAIRS, nameForPair } from "@/modules/exchange/symbols";
 import { useLivePrices, type ConnState } from "@/modules/exchange/useLivePrices";
@@ -50,6 +52,7 @@ export function LiveMarket({ initial }: { initial: Ticker24h[] }) {
               <th className="hidden px-5 py-2.5 text-right font-medium sm:table-cell">24h high</th>
               <th className="hidden px-5 py-2.5 text-right font-medium sm:table-cell">24h low</th>
               <th className="hidden px-5 py-2.5 text-right font-medium md:table-cell">Volume</th>
+              <th className="px-5 py-2.5 text-right font-medium"></th>
             </tr>
           </thead>
           <tbody>
@@ -80,6 +83,14 @@ export function LiveMarket({ initial }: { initial: Ticker24h[] }) {
                 </td>
                 <td className="hidden px-5 py-3 text-right tnum text-muted md:table-cell">
                   {usdCompact(r.quoteVolume)}
+                </td>
+                <td className="px-5 py-3 text-right">
+                  <Link
+                    href={`/journal?pair=${r.pair}&price=${r.last}`}
+                    className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted hover:border-primary hover:text-primary"
+                  >
+                    <PlusCircle className="h-3 w-3" /> Log trade
+                  </Link>
                 </td>
               </tr>
             ))}

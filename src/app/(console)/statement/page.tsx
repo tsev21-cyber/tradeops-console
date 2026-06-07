@@ -1,6 +1,9 @@
+"use client";
+
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardHeader, Badge } from "@/components/ui";
-import { trades, DEMO_NOW } from "@/modules/seed";
+import { DEMO_NOW } from "@/modules/seed";
+import { useTrades } from "@/modules/store";
 import { realizedPnl } from "@/modules/trading/logic";
 import { usd } from "@/lib/utils";
 
@@ -8,7 +11,7 @@ const DAY = 86_400_000;
 
 interface Movement {
   at: number;
-  kind: "deposit" | "trade" | "fee";
+  kind: "deposit" | "trade";
   desc: string;
   amount: number;
 }
@@ -18,6 +21,8 @@ function fmtDate(ts: number) {
 }
 
 export default function StatementPage() {
+  const { trades } = useTrades();
+
   const deposits: Movement[] = [
     { at: DEMO_NOW - 40 * DAY, kind: "deposit", desc: "Opening deposit", amount: 100_000 },
     { at: DEMO_NOW - 18 * DAY, kind: "deposit", desc: "Top-up", amount: 10_000 },
@@ -32,7 +37,6 @@ export default function StatementPage() {
   }));
 
   const movements = [...deposits, ...tradeMoves].sort((a, b) => a.at - b.at);
-
   const totalDeposits = deposits.reduce((s, m) => s + m.amount, 0);
   const realized = tradeMoves.reduce((s, m) => s + m.amount, 0);
   const balance = totalDeposits + realized;
@@ -44,22 +48,10 @@ export default function StatementPage() {
       <PageHeader title="Account Statement" subtitle="Internal balances, deposits, and realized results" />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Card className="p-4">
-          <p className="text-xs text-muted">Deposits</p>
-          <p className="mt-1 text-xl font-semibold tnum">{usd(totalDeposits)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs text-muted">Realized P&L</p>
-          <p className={realized >= 0 ? "mt-1 text-xl font-semibold tnum text-up" : "mt-1 text-xl font-semibold tnum text-down"}>{usd(realized)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs text-muted">Closed trades</p>
-          <p className="mt-1 text-xl font-semibold tnum">{closed.length}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs text-muted">Internal balance</p>
-          <p className="mt-1 text-xl font-semibold tnum">{usd(balance)}</p>
-        </Card>
+        <Card className="p-4"><p className="text-xs text-muted">Deposits</p><p className="mt-1 text-xl font-semibold tnum">{usd(totalDeposits)}</p></Card>
+        <Card className="p-4"><p className="text-xs text-muted">Realized P&L</p><p className={realized >= 0 ? "mt-1 text-xl font-semibold tnum text-up" : "mt-1 text-xl font-semibold tnum text-down"}>{usd(realized)}</p></Card>
+        <Card className="p-4"><p className="text-xs text-muted">Closed trades</p><p className="mt-1 text-xl font-semibold tnum">{closed.length}</p></Card>
+        <Card className="p-4"><p className="text-xs text-muted">Internal balance</p><p className="mt-1 text-xl font-semibold tnum">{usd(balance)}</p></Card>
       </div>
 
       <Card>
@@ -82,9 +74,7 @@ export default function StatementPage() {
                   <tr key={i} className="border-b border-border-soft last:border-0">
                     <td className="px-5 py-3 text-xs text-faint">{fmtDate(m.at)}</td>
                     <td className="px-5 py-3 text-text">{m.desc}</td>
-                    <td className="px-5 py-3">
-                      <Badge tone={m.kind === "deposit" ? "primary" : m.amount >= 0 ? "up" : "down"}>{m.kind}</Badge>
-                    </td>
+                    <td className="px-5 py-3"><Badge tone={m.kind === "deposit" ? "primary" : m.amount >= 0 ? "up" : "down"}>{m.kind}</Badge></td>
                     <td className={m.amount >= 0 ? "px-5 py-3 text-right tnum text-up" : "px-5 py-3 text-right tnum text-down"}>{usd(m.amount)}</td>
                     <td className="px-5 py-3 text-right tnum text-muted">{usd(running)}</td>
                   </tr>
