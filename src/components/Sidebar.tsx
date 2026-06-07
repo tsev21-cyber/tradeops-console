@@ -12,6 +12,7 @@ import {
   ShieldAlert,
   ScrollText,
   Map,
+  Network,
   Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,7 @@ const nav = [
   { href: "/statement", label: "Account Statement", icon: ReceiptText, module: "Internal Statement" },
   { href: "/risk", label: "Risk Review", icon: ShieldAlert, module: "Risk Management" },
   { href: "/audit", label: "Audit Log", icon: ScrollText, module: "Audit & Safeguards" },
+  { href: "/architecture", label: "Architecture", icon: Network, module: "System design" },
   { href: "/roadmap", label: "Roadmap", icon: Map, module: "Delivery plan" },
 ];
 

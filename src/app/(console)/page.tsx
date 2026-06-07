@@ -3,14 +3,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { EquityChart } from "@/components/EquityChart";
 import { Card, CardHeader, Badge, Delta } from "@/components/ui";
 import { equityCurve, trades } from "@/modules/seed";
+import { realizedPnlPct, notional, tradeStats } from "@/modules/trading/logic";
 import { usd, usdCompact } from "@/lib/utils";
-
-function tradePnl(t: (typeof trades)[number]): number | null {
-  if (t.status !== "closed" || t.exit == null) return null;
-  const gross = (t.exit - t.entry) * t.quantity * (t.side === "buy" ? 1 : -1);
-  const fees = (t.entry + t.exit) * t.quantity * (t.feePct / 100);
-  return gross - fees;
-}
 
 export default function DashboardPage() {
   const equityNow = equityCurve[equityCurve.length - 1].equity;
@@ -18,10 +12,8 @@ export default function DashboardPage() {
   const pnl30d = equityNow - equityStart;
   const pnl30dPct = (pnl30d / equityStart) * 100;
 
-  const closed = trades.filter((t) => t.status === "closed");
-  const wins = closed.filter((t) => (tradePnl(t) ?? 0) > 0).length;
-  const winRate = closed.length ? (wins / closed.length) * 100 : 0;
-  const openCount = trades.filter((t) => t.status === "open").length;
+  // Aggregate stats come from the trading domain module (pure, testable).
+  const stats = tradeStats(trades);
 
   const kpis: {
     label: string;
@@ -32,8 +24,8 @@ export default function DashboardPage() {
   }[] = [
     { label: "Total Equity", value: usd(equityNow), delta: pnl30dPct, icon: Wallet },
     { label: "30D P&L", value: usd(pnl30d), delta: pnl30dPct, icon: TrendingUp },
-    { label: "Open Positions", value: String(openCount), sub: "across 3 portfolios", icon: Activity },
-    { label: "Win Rate", value: `${winRate.toFixed(0)}%`, sub: `${wins}/${closed.length} closed`, icon: Target },
+    { label: "Open Positions", value: String(stats.open), sub: "across 3 portfolios", icon: Activity },
+    { label: "Win Rate", value: `${stats.winRate.toFixed(0)}%`, sub: `${stats.wins}/${stats.closed} closed`, icon: Target },
   ];
 
   return (
@@ -83,7 +75,7 @@ export default function DashboardPage() {
           <CardHeader title="Recent Trades" subtitle="Latest journal entries" />
           <div className="divide-y divide-border-soft">
             {trades.slice(0, 5).map((t) => {
-              const pnl = tradePnl(t);
+              const pnlPct = realizedPnlPct(t);
               return (
                 <div key={t.id} className="flex items-center justify-between px-5 py-3">
                   <div>
@@ -93,12 +85,12 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    {pnl != null ? (
-                      <Delta value={(pnl / (t.entry * t.quantity)) * 100} />
+                    {pnlPct != null ? (
+                      <Delta value={pnlPct} />
                     ) : (
                       <Badge tone="primary">open</Badge>
                     )}
-                    <p className="text-[11px] text-faint tnum">{usdCompact(t.entry * t.quantity)}</p>
+                    <p className="text-[11px] text-faint tnum">{usdCompact(notional(t))}</p>
                   </div>
                 </div>
               );
