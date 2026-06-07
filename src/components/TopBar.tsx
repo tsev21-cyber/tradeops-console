@@ -1,4 +1,5 @@
-import { ShieldCheck, UserRound } from "lucide-react";
+import Link from "next/link";
+import { ShieldCheck, UserRound, LogOut } from "lucide-react";
 import { Badge } from "@/components/ui";
 
 export function TopBar() {
@@ -25,6 +26,13 @@ export function TopBar() {
             <p className="text-[10px] text-faint">role: owner</p>
           </div>
         </div>
+        <Link
+          href="/login"
+          aria-label="Sign out"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-faint hover:border-down hover:text-down"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+        </Link>
       </div>
     </header>
   );
